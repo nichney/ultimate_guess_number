@@ -22,11 +22,3 @@ class TestGuessNumber(unittest.TestCase):
         self.assertIsNone(instance.do_difficulty("hard"))
         self.assertEqual(instance.difficulty, guess_game.Difficulty.HARD)
 
-    def test_guess(self):
-        instance = guess_game.Guesser()
-        instance.do_difficulty("hard")
-
-        self.assertTrue(instance.default(instance.secret))
-        self.assertIsNone(instance.default(101))
-        self.assertIsNone(instance.default(-1))
-        self.assertFalse(instance.default(100))

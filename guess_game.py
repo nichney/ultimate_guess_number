@@ -26,19 +26,26 @@ class Guesser(cmd.Cmd):
 
     def default(self, guess):
         """Method called when user just enter a number"""
-        guess = int(guess)
-        if guess == self.secret:
-            self.won()
-            return True
-        self.guesses_remain -= 1
-        if self.guesses_remain == 0:
-            self.lost()
-            return False
-        print("Incorrect!", end=' ')
-        if self.secret < guess:
-            print(f"The number is less than {guess}. Remain {self.guesses_remain} guesses") 
-        else:
-            print(f"The number is greater than {guess}. Remain {self.guesses_remain} guesses")
+        try:
+            guess = int(guess)
+            self.guesses_remain -= 1
+            if self.guesses_remain == 0:
+                self.lost()
+                self.prompt = "Do you wanna play other round? [y/N] "
+            if guess == self.secret:
+                self.won()
+                self.prompt = "Do you wanna play other round? [y/N] "
+            print("Incorrect!", end=' ')
+            if self.secret < guess:
+                print(f"The number is less than {guess}. Remain {self.guesses_remain} guesses") 
+            else:
+                print(f"The number is greater than {guess}. Remain {self.guesses_remain} guesses")
+        except ValueError:
+            if guess == 'y':
+                self.reset()
+                self.prompt = "Enter your guess: "
+            else:
+                return True
             
     def won(self):
         print(f"Congragulations! You guessed the correct number in {self.difficulty.value - self.guesses_remain} attempts")
