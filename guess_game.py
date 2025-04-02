@@ -9,7 +9,8 @@ class Difficulty(enum.Enum):
 
 class Guesser(cmd.Cmd):
     intro = f'Welcome to the Ultimate Number Guessing Game!\nI\'m thinking of a number between 1 and 100' \
-            '\nTo change game difficulty - use "difficulty [easy|medium|hard]"'
+            '\nTo change game difficulty - use "difficulty [easy|medium|hard]"' \
+            '\n "record" to print out your records'
     prompt = "Enter your guess: "
 
     def __init__(self):
@@ -47,6 +48,19 @@ class Guesser(cmd.Cmd):
                 json.dump(self.record, f)
         except Exception as e:
             print(f'Error! Cannot write the record to a file: {e}')
+
+    def do_record(self, line):
+        """Print out the currect record"""
+        print('Your records are:')
+        for d in self.record.keys():
+            print(f"-- Records on {d} level:")
+            for k, v in self.record[d].items():
+                if k.endswith("_attempts") and v in (100, 0) or k.endswith("_time") and v in (50000, 0):
+                    continue # skip if default values
+                print(f"---- {k} is {v}")
+        print('-'*25)
+        print("Starting new game... done!")
+        self.reset()
 
     def do_difficulty(self, line):
         if line == 'easy': self.difficulty = Difficulty.EASY 
