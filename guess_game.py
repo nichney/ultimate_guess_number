@@ -14,46 +14,89 @@ class Guesser(cmd.Cmd):
 
     def __init__(self):
         self.difficulty = Difficulty.MEDIUM
+        self.record_filename = 'guesses_record.json'
         self.reset() # set default values
+        self.record = self.load_record()
         super().__init__()
+
+    def load_record(self) -> dict:
+        """Record structure:
+            {   'EASY': {'best_attempts': 100, 'worst_attempts': 0, 'best_time': 50000, 'worst_time': 0},
+                'MEDIUM': {'best_attempts': 100, 'worst_attempts': 0, 'best_time': 50000, 'worst_time': 0},
+                'HARD': {'best_attempts': 100, 'worst_attempts': 0, 'best_time': 50000, 'worst_time': 0}
+            }
+        """
+        try:
+            with open(self.record_filename, 'r') as f:
+                return json.load(f)
+        except Exception:
+            return {   'EASY': {'best_attempts': 100, 'worst_attempts': 0, 'best_time': 50000, 'worst_time': 0},
+                        'MEDIUM': {'best_attempts': 100, 'worst_attempts': 0, 'best_time': 50000, 'worst_time': 0},
+                    'HARD': {'best_attempts': 100, 'worst_attempts': 0, 'best_time': 50000, 'worst_time': 0}
+                    } # return default dict if no file or other error
+
+    def update_record(self, attempts, game_time):
+        self.record[self.difficulty.name]['best_attempts'] = min(self.record[self.difficulty.name]['best_attempts'], attempts)
+        self.record[self.difficulty.name]['worst_attempts'] = max(self.record[self.difficulty.name]['worst_attempts'], attempts)
+        self.record[self.difficulty.name]['best_time'] = min(self.record[self.difficulty.name]['best_time'], game_time)
+        self.record[self.difficulty.name]['worst_time'] = max(self.record[self.difficulty.name]['worst_time'], game_time)
+
+    def write_record(self):
+        try:
+            with open(self.record_filename, 'w') as f:
+                json.dump(self.record, f)
+        except Exception as e:
+            print(f'Error! Cannot write the record to a file: {e}')
 
     def do_difficulty(self, line):
         if line == 'easy': self.difficulty = Difficulty.EASY 
         elif line == 'medium': self.difficulty = Difficulty.MEDIUM 
         elif line == 'hard': self.difficulty = Difficulty.HARD 
-        else: return False # exit program if wrong option
+        else:
+            print(f'Error: There is no such difficulty.')
+            #return True # exit program if wrong option
         self.reset()
 
     def default(self, guess):
         """Method called when user just enter a number"""
+        if guess.lower() == 'y':  # Restart game if user wants to play again
+            self.reset()
+            self.prompt = "Enter your guess: "
+            return
+
         try:
             guess = int(guess)
-            self.guesses_remain -= 1
-            if self.guesses_remain == 0:
-                self.lost()
-                self.prompt = "Do you wanna play other round? [y/N] "
-            if guess == self.secret:
-                self.won()
-                self.prompt = "Do you wanna play other round? [y/N] "
-            print("Incorrect!", end=' ')
-            if self.secret < guess:
-                print(f"The number is less than {guess}. Remain {self.guesses_remain} guesses") 
-            else:
-                print(f"The number is greater than {guess}. Remain {self.guesses_remain} guesses")
         except ValueError:
-            if guess == 'y':
-                self.reset()
-                self.prompt = "Enter your guess: "
-            else:
-                return True
+            self.write_record()
+            return True  # Exit if input is invalid and not 'y'
+
+        if guess == self.secret:
+            self.won()
+            self.prompt = "Do you wanna play another round? [y/N] "
+            return False  # End game
+
+        self.guesses_remain -= 1
+        if self.guesses_remain == 0:
+            self.lost()
+            self.prompt = "Do you wanna play another round? [y/N] "
+            return False  # End game
+
+        # Provide hint to user
+        hint = "less" if self.secret < guess else "greater"
+        print(f"Incorrect! The number is {hint} than {guess}. {self.guesses_remain} guesses remaining.")
+
             
     def won(self):
-        print(f"Congragulations! You guessed the correct number in {self.difficulty.value - self.guesses_remain} attempts")
-        print(f"You spent {round(time.monotonic() - self.start_time)} sec. to solve it.")
+        spent = round(time.monotonic() - self.start_time)
+        attempts = self.difficulty.value - self.guesses_remain + 1
+        print(f"Congragulations! You guessed the correct number in {attempts} attempts")
+        self.update_record(attempts, spent)
+        print(f"You spent {spent} sec. to solve it.")
 
     def lost(self):
+        spent = round(time.monotonic() - self.start_time)
         print(f"You lost! The number was {self.secret}")
-        print(f"You spent {round(time.monotonic() - self.start_time)} sec. to solve it.")
+        print(f"You spent {spent} sec. to solve it.")
 
     def reset(self):
         """ Reset the guessing number, remain guesses and start time """
@@ -63,6 +106,8 @@ class Guesser(cmd.Cmd):
 
 
     def do_EOF(self, line):
+        print() # just leave an empty line before finishing programm
+        self.write_record()
         return True
 
 
