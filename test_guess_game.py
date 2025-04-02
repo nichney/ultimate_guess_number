@@ -65,7 +65,7 @@ class TestGuessNumber(unittest.TestCase):
     def test_restart_game(self):
         """Test restarting the game when user enters 'y'"""
         self.instance.default("y")
-        self.assertEqual(self.instance.prompt, "Enter your guess: ")
+        self.assertEqual(self.instance.prompt, "Enter your guess (or command): ")
 
 
     def test_eof_command(self):

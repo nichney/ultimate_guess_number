@@ -4,14 +4,14 @@ import cmd, time, random, json, enum
 
 class Difficulty(enum.Enum):
     EASY = 10
-    MEDIUM = 5
-    HARD = 3
+    MEDIUM = 7
+    HARD = 4
 
 class Guesser(cmd.Cmd):
     intro = f'Welcome to the Ultimate Number Guessing Game!\nI\'m thinking of a number between 1 and 100' \
-            '\nTo change game difficulty - use "difficulty [easy|medium|hard]"' \
-            '\n "record" to print out your records'
-    prompt = "Enter your guess: "
+            '\nType "help" to discover available commands\n' \
+            'Press CTRL+D to exit\n'
+    prompt = "Enter your guess (or command): "
 
     def __init__(self):
         self.difficulty = Difficulty.MEDIUM
@@ -60,22 +60,28 @@ class Guesser(cmd.Cmd):
                 print(f"---- {k} is {v}")
         print('-'*25)
         print("Starting new game... done!")
+        self.prompt = "Enter your guess (or command): "
         self.reset()
 
     def do_difficulty(self, line):
+        """Change the game difficulty. Choices are: easy, medium and hard.
+           The attempts amount depends on difficulty.
+           The default is 'medium'
+            """
         if line == 'easy': self.difficulty = Difficulty.EASY 
         elif line == 'medium': self.difficulty = Difficulty.MEDIUM 
         elif line == 'hard': self.difficulty = Difficulty.HARD 
         else:
             print(f'Error: There is no such difficulty.')
-            #return True # exit program if wrong option
+            return False
         self.reset()
+        print(f"You changed difficulty to {self.difficulty.name}. Enjoy the game!")
 
     def default(self, guess):
         """Method called when user just enter a number"""
         if guess.lower() == 'y':  # Restart game if user wants to play again
             self.reset()
-            self.prompt = "Enter your guess: "
+            self.prompt = "Enter your guess (or command): "
             return
 
         try:
@@ -86,13 +92,13 @@ class Guesser(cmd.Cmd):
 
         if guess == self.secret:
             self.won()
-            self.prompt = "Do you wanna play another round? [y/N] "
+            self.prompt = "Do you wanna play again? [y/N] "
             return False  # End game
 
         self.guesses_remain -= 1
         if self.guesses_remain == 0:
             self.lost()
-            self.prompt = "Do you wanna play another round? [y/N] "
+            self.prompt = "Do you wanna play again? [y/N] "
             return False  # End game
 
         # Provide hint to user
@@ -120,6 +126,7 @@ class Guesser(cmd.Cmd):
 
 
     def do_EOF(self, line):
+        """Exit"""
         print() # just leave an empty line before finishing programm
         self.write_record()
         return True
