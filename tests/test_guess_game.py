@@ -1,11 +1,11 @@
 import unittest, os, json
 from unittest.mock import patch
-import guess_game
+import ultimate_guess_number
 
 class TestGuessNumber(unittest.TestCase):
 
     def setUp(self):
-        self.instance = guess_game.Guesser()
+        self.instance = ultimate_guess_number.Guesser()
         self.instance.record_filename = "test_record.json"  # test records to not corrupt the existing data
         self.instance.record = self.instance.load_record()
 
@@ -30,13 +30,13 @@ class TestGuessNumber(unittest.TestCase):
             mock_print.assert_called_with("Error: There is no such difficulty.")
 
         self.assertIsNone(self.instance.do_difficulty("easy"))
-        self.assertEqual(self.instance.difficulty, guess_game.Difficulty.EASY)
+        self.assertEqual(self.instance.difficulty, ultimate_guess_number.Difficulty.EASY)
 
         self.assertIsNone(self.instance.do_difficulty("medium"))
-        self.assertEqual(self.instance.difficulty, guess_game.Difficulty.MEDIUM)
+        self.assertEqual(self.instance.difficulty, ultimate_guess_number.Difficulty.MEDIUM)
 
         self.assertIsNone(self.instance.do_difficulty("hard"))
-        self.assertEqual(self.instance.difficulty, guess_game.Difficulty.HARD)
+        self.assertEqual(self.instance.difficulty, ultimate_guess_number.Difficulty.HARD)
     
     def test_correct_guess(self):
         """Test if game end after a correct guess """

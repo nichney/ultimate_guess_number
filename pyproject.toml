@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ultimate_guess_number"
+version = "0.2.0"
+readme = "README.md"
+description = "The Ultimate CLI Number Guessing Game is a command-line interface (CLI) game where the player attempts to guess a randomly generated number"
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://github.com/nichney/ultimate_guess_number"
+
+[project.scripts]
+ultimate_guess_game = "ultimate_guess_number.ultimate_guess_game:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

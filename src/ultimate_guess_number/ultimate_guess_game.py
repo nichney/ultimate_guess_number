@@ -167,6 +167,8 @@ class Guesser(cmd.Cmd):
         self.write_record()
         return True
 
+def main():
+    Guesser().cmdloop()
 
 if __name__ == "__main__":
-    Guesser().cmdloop()
+    main()
