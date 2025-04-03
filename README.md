@@ -6,6 +6,13 @@ https://roadmap.sh/projects/number-guessing-game
 
 The **Ultimate CLI Number Guessing Game** is a command-line interface (CLI) game where the player attempts to guess a randomly generated number between 1 and 100. The game offers three difficulty levels, each with a different number of attempts allowed. Player records, including best and worst attempts and times, are saved for future reference.
 
+## Installation
+```bash
+git clone https://github.com/nichney/ultimate_guess_number.git
+cd ultimate_guess_number
+pip install .
+```
+
 ## Features
 - Three difficulty levels: **Easy (10 attempts), Medium (7 attempts), and Hard (4 attempts)**.
 - Keeps track of player records, including best/worst attempts and times for each difficulty level.
